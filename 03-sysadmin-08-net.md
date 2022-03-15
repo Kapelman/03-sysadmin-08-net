@@ -196,3 +196,74 @@ Paths: (23 available, best #22, table default)
 ```
 
 2. Создайте dummy0 интерфейс в Ubuntu. Добавьте несколько статических маршрутов. Проверьте таблицу маршрутизации.
+
+- создадим интерфейсы и инициализируем их
+```
+vagrant@vagrant:~$ sudo ip link add dummy0 type dummy
+vagrant@vagrant:~$ sudo ip link add dummy1 type dummy
+vagrant@vagrant:~$ sudo ip link set dummy0 up
+vagrant@vagrant:~$ sudo ip link set dummy1 up
+```
+- пропишем IP адреса
+```
+vagrant@vagrant:~$ sudo ip addr add 192.168.1.150/24 dev dummy0
+vagrant@vagrant:~$ sudo ip addr add 192.168.2.150/24 dev dummy1
+```
+- проверим
+```
+vagrant@vagrant:~$ ifconfig
+dummy0: flags=195<UP,BROADCAST,RUNNING,NOARP>  mtu 1500
+        inet 192.168.1.150  netmask 255.255.255.0  broadcast 0.0.0.0
+        inet6 fe80::bc3a:53ff:fee1:e195  prefixlen 64  scopeid 0x20<link>
+        ether be:3a:53:e1:e1:95  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 6  bytes 714 (714.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+dummy1: flags=195<UP,BROADCAST,RUNNING,NOARP>  mtu 1500
+        inet 192.168.2.150  netmask 255.255.255.0  broadcast 0.0.0.0
+        inet6 fe80::5ca8:96ff:fea8:4967  prefixlen 64  scopeid 0x20<link>
+        ether 5e:a8:96:a8:49:67  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 6  bytes 714 (714.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.2.15  netmask 255.255.255.0  broadcast 10.0.2.255
+        inet6 fe80::a00:27ff:feb1:285d  prefixlen 64  scopeid 0x20<link>
+        ether 08:00:27:b1:28:5d  txqueuelen 1000  (Ethernet)
+        RX packets 1008  bytes 111398 (111.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 772  bytes 108082 (108.0 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 793  bytes 213754 (213.7 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 793  bytes 213754 (213.7 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+- добавим статические маршруты и проверим таблицу маршрутизации.
+```
+vagrant@vagrant:~$ sudo route add -net 192.168.2.0 netmask 255.255.255.0 gw 192.168.2.150
+vagrant@vagrant:~$ sudo route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.150
+
+vagrant@vagrant:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.0.2.2        0.0.0.0         UG    100    0        0 eth0
+10.0.2.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+10.0.2.2        0.0.0.0         255.255.255.255 UH    100    0        0 eth0
+192.168.1.0     192.168.1.150   255.255.255.0   UG    0      0        0 dummy0
+192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 dummy0
+192.168.2.0     192.168.2.150   255.255.255.0   UG    0      0        0 dummy1
+192.168.2.0     0.0.0.0         255.255.255.0   U     0      0        0 dummy1
+```
+
+3. Проверьте открытые TCP порты в Ubuntu, какие протоколы и приложения используют эти порты? Приведите несколько примеров.
