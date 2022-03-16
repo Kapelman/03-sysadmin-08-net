@@ -267,3 +267,48 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ```
 
 3. Проверьте открытые TCP порты в Ubuntu, какие протоколы и приложения используют эти порты? Приведите несколько примеров.
+
+Решение:
+
+Используем команду SS, запущенную с полномочиями root
+
+Порты в состоянии LISTEN
+```
+vagrant@vagrant:~$ sudo ss -tpln
+State               Recv-Q              Send-Q                            Local Address:Port                              Peer Address:Port              Process
+LISTEN              0                   4096                              127.0.0.53%lo:53                                     0.0.0.0:*                  users:(("systemd-resolve",pid=638,fd=13))
+LISTEN              0                   128                                     0.0.0.0:22                                     0.0.0.0:*                  users:(("sshd",pid=735,fd=3))
+LISTEN              0                   4096                                  127.0.0.1:8125                                   0.0.0.0:*                  users:(("netdata",pid=683,fd=45))
+LISTEN              0                   4096                                    0.0.0.0:19999                                  0.0.0.0:*                  users:(("netdata",pid=683,fd=4))
+LISTEN              0                   70                                    127.0.0.1:33060                                  0.0.0.0:*                  users:(("mysqld",pid=877,fd=32))
+LISTEN              0                   151                                   127.0.0.1:3306                                   0.0.0.0:*                  users:(("mysqld",pid=877,fd=34))
+LISTEN              0                   128                                        [::]:22                                        [::]:*                  users:(("sshd",pid=735,fd=4))
+LISTEN              0                   511                                           *:80                                           *:*                  users:(("apache2",pid=6729,fd=4),("apache2",pid=6728,fd=4),("apache2",pid=6727,fd=4),("apache2",pid=6725,fd=4),("apache2",pid=2324,fd=4),("apache2",pid=2303,fd=4),("apache2",pid=2302,fd=4),("apache2",pid=2301,fd=4),("apache2",pid=2300,fd=4),("apache2",pid=2299,fd=4),("apache2",pid=689,fd=4))
+```
+
+Порты с состоянием ESTEBLISH
+```
+vagrant@vagrant:~$ sudo ss -tpn
+State           Recv-Q           Send-Q                            Local Address:Port                              Peer Address:Port            Process
+ESTAB           0                0                                     10.0.2.15:22                                    10.0.2.2:61961            users:(("sshd",pid=1770,fd=4),("sshd",pid=1730,fd=4))
+ESTAB           0                0                                     10.0.2.15:22                                    10.0.2.2:59115            users:(("sshd",pid=6797,fd=4),("sshd",pid=6756,fd=4))
+ESTAB           0                0                                     127.0.0.1:54874                                127.0.0.1:80               users:(("python.d.plugin",pid=953,fd=3))
+ESTAB           0                0                            [::ffff:127.0.0.1]:80                          [::ffff:127.0.0.1]:54874            users:(("apache2",pid=2324,fd=10))
+```
+
+Приложения, использующие открытые сокеты - apache, ssh, python и т.д.
+
+4. Проверьте используемые UDP сокеты в Ubuntu, какие протоколы и приложения используют эти порты?
+
+Решение - применим команду ss с ключом -U
+```
+vagrant@vagrant:~$ sudo ss -uap
+State               Recv-Q              Send-Q                            Local Address:Port                              Peer Address:Port              Process
+UNCONN              0                   0                                     127.0.0.1:8125                                   0.0.0.0:*                  users:(("netdata",pid=683,fd=41))
+UNCONN              0                   0                                 127.0.0.53%lo:domain                                 0.0.0.0:*                  users:(("systemd-resolve",pid=638,fd=12))
+UNCONN              0                   0                                10.0.2.15%eth0:bootpc                                 0.0.0.0:*                  users:(("systemd-network",pid=636,fd=19))
+```
+
+Все порты закрыты, приложения, которые используют эти порты - netdata, systemd-resolve.
+
+5. Используя diagrams.net, создайте L3 диаграмму вашей домашней сети или любой другой сети, с которой вы работали.
